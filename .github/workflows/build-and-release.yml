@@ -1,4 +1,4 @@
-name: Build and Release My Player v2
+name: Build and Release My Player v3
 
 on:
   push:
@@ -62,8 +62,8 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 12.0
+        # Убираем все параметры конфигурации, чтобы экшен не пытался
+        # обновлять/устанавливать системные пакеты (tools)
 
       - name: Accept Android SDK Licenses
         run: yes | sdkmanager --licenses || true
