@@ -1,0 +1,17 @@
+{
+	"appId": "com.remix.player",
+	"appName": "My Player",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	},
+	"android": {
+		"allowMixedContent": true,
+		"webContentsDebuggingEnabled": false
+	},
+	"plugins": {
+		"ScreenOrientation": {
+			"mode": "portrait"
+		}
+	}
+}
