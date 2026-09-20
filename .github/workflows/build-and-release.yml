@@ -1,4 +1,4 @@
-name: Build and Release My Player (Android APK & Windows EXE)
+name: Build and Release My Player v2
 
 on:
   push:
@@ -60,14 +60,13 @@ jobs:
           distribution: 'temurin'
           java-version: 21
 
-          - name: Accept Android SDK Licenses
-        run: |
-          yes | sdkmanager --licenses || true
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
           cmdline-tools-version: 12.0
+
+      - name: Accept Android SDK Licenses
+        run: yes | sdkmanager --licenses || true
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
@@ -89,6 +88,7 @@ jobs:
       - name: Prepare APK output
         run: |
           mkdir -p apk_output
+          # Копируем APK, учитывая разные возможные пути сборки
           if [ -f "android/app/build/outputs/apk/debug/My Player.apk" ]; then
             cp "android/app/build/outputs/apk/debug/My Player.apk" "apk_output/My Player.apk"
           elif [ -f "android/app/build/outputs/apk/debug/app-debug.apk" ]; then
