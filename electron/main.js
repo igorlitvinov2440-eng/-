@@ -1,22 +1,21 @@
 import { app, BrowserWindow, shell } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Store from 'electron-store';
+
+const store = new Store();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Пропорция смартфона / Hi-Fi плеера (ширина / высота ~ 0.4886)
-const ASPECT_RATIO = 430 / 880;
-
 function createWindow() {
-  const initialHeight = 880;
-  const initialWidth = Math.round(initialHeight * ASPECT_RATIO);
+  const defaultBounds = { width: 800, height: 600 };
+  const bounds = store.get('window-bounds', defaultBounds);
 
   const mainWindow = new BrowserWindow({
-    width: initialWidth,
-    height: initialHeight,
-    minWidth: 320,
-    minHeight: Math.round(320 / ASPECT_RATIO), // ~655px
+    ...bounds,
+    minWidth: 400,
+    minHeight: 300,
     icon: path.join(__dirname, 'icon.png'),
     title: 'My Player',
     autoHideMenuBar: true,
@@ -28,24 +27,12 @@ function createWindow() {
     },
   });
 
-  // Фиксация пропорций при растягивании окна (macOS / Windows / Linux)
-  try {
-    mainWindow.setAspectRatio(ASPECT_RATIO);
-  } catch (e) {}
-
-  // Гарантированное пропорциональное изменение размера в обе стороны на Windows
-  mainWindow.on('will-resize', (event, newBounds) => {
-    const targetWidth = Math.round(newBounds.height * ASPECT_RATIO);
-    if (Math.abs(newBounds.width - targetWidth) > 3) {
-      event.preventDefault();
-      mainWindow.setBounds({
-        x: newBounds.x,
-        y: newBounds.y,
-        width: targetWidth,
-        height: newBounds.height,
-      });
-    }
-  });
+  // Save bounds on resize/move
+  const saveBounds = () => {
+    store.set('window-bounds', mainWindow.getBounds());
+  };
+  mainWindow.on('resize', saveBounds);
+  mainWindow.on('moved', saveBounds);
 
   // Открытие внешних ссылок (например, GitHub) в системном браузере по умолчанию
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
